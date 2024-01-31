@@ -447,14 +447,12 @@ Last editted - 30Jan24
           {% endif %}
         </div>
 
-
-
         {% elsif block.type == "blog" %}
           
 {% comment %}  * * * Blog * * * {% endcomment %}
 
         {% comment %} Content settings {% endcomment %}
-        {%- assign blog = articles[block.settings.feature_blog] -%}
+        {%- assign blog = blogs[block.settings.feature_blog] -%}
         {%- assign image = block.settings.image -%}
         {%- assign title = block.settings.title -%}
         {%- assign button_label = block.settings.button_label -%}
@@ -534,11 +532,6 @@ Last editted - 30Jan24
           {% endif %}
         </div>
 
-
-
-
-
-    
       {% endif %}
 
       {% endfor %}
