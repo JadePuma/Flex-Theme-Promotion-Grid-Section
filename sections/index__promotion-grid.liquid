@@ -2,7 +2,7 @@
 
 Custom section created by JadePuma
 Instructions - https://jadepuma.com/blogs/shopify-tutorials/promotions-grid-section-for-the-flex-theme
-Last editted - 26Jan24
+Last editted - 30Jan24
 
 {% endcomment %}
 
@@ -446,6 +446,98 @@ Last editted - 26Jan24
             </a>
           {% endif %}
         </div>
+
+
+
+        {% elsif block.type == "blog" %}
+          
+{% comment %}  * * * Blog * * * {% endcomment %}
+
+        {% comment %} Content settings {% endcomment %}
+        {%- assign blog = articles[block.settings.feature_blog] -%}
+        {%- assign image = block.settings.image -%}
+        {%- assign title = block.settings.title -%}
+        {%- assign button_label = block.settings.button_label -%}
+        {%- assign blog_image = image -%}
+        {%- assign blog_image_alt = image.alt | escape -%}
+        {% comment %} End content settings {% endcomment %}
+
+        <div class="column
+                    {% render 'column-width', value: section.settings.promotions_per_row %}
+                    thumbnail
+                    {% if section.settings.align_height %}
+                      list-collection--align-height
+                    {% endif %}
+                    {% if section.settings.show_gutter == true %}
+                      has-gutter
+                      has-gutter--mobile
+                    {% endif %}
+                    list-collection__thumbnail
+                    medium-down--one-whole">
+
+          <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
+            <div class="promotion-thumbnail-overlay"></div>
+
+            {% if blog_image != blank %}
+              <div class="thumbnail image__container has-image-crop">
+                {%
+                  render 'image-element',
+                  image: blog_image.src,
+                  alt: blog_image_alt,
+                  image_crop: true,
+                  max_height: image_height,
+                %}
+              </div>
+            {% else %}
+              {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+              {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+
+            <a class="collection-info__caption" href="{{ blog.url }}">
+              {% if section.settings.promotion_title_below_image == blank %}
+                <div class="collection-info__caption-wrapper">
+                  <span class="title">
+                    {% if title != blank %}
+                      {{ title }}
+                    {% elsif blog != blank %}
+                      {{ blog.title }}
+                    {% else %}
+                      {{ "homepage.onboarding.collection_title" | t }}
+                    {% endif %}
+                  </span>
+                  {% render 'button',
+                          label: button_label,
+                          href: blog.url,
+                          style: section.settings.button_style
+                  %}
+                </div>
+              {% endif %}
+            </a>
+          </div>
+          {% if section.settings.promotion_title_below_image != blank %}
+            <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ blog.url }}">
+              <span class="title">
+                {% if title != blank %}
+                  {{ title }}
+                {% elsif blog != blank %}
+                  {{ blog.title }}
+                {% else %}
+                  {{ "homepage.onboarding.collection_title" | t }}
+                {% endif %}
+              </span>
+              {% render 'button',
+                      label: button_label,
+                      href: blog.url,
+                      style: section.settings.button_style
+              %}
+            </a>
+          {% endif %}
+        </div>
+
+
+
+
+
     
       {% endif %}
 
@@ -752,6 +844,32 @@ Last editted - 26Jan24
           "label": "Button label"
         }
       ]
+    },
+    {
+      "type": "blog",
+      "name": "blog",
+      "settings": [
+        {
+          "type": "blog",
+          "id": "feature_blog",
+          "label": "Blog"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
     }
   ],
   "presets": [
@@ -771,6 +889,9 @@ Last editted - 26Jan24
         },
         {
           "type": "article"
+        },
+        {
+          "type": "blog"
         }
       ]
     }
