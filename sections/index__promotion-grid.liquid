@@ -32,11 +32,27 @@ Last editted - 30Jan24
 
   .promotion-thumbnail-overlay {
     background-color: {%- if overlay_alpha != 0 -%}{{ section.settings.overlay_background | color_modify: 'alpha', overlay_background_alpha }}{% endif %};
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
   }
 
   .collection-info__caption span {
     color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %}
+      font-size: {{section.settings.text_font_size}}px !important;
   }
+
+  .title-below-image {
+    color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %};
+    font-size: {{section.settings.text_font_size}}px !important;
+  }
+
+.collection-info__caption a{
+  text-align:center;
+}
+  
 {%- endcapture -%}
 
 {% comment %} Section specific CSS {% endcomment %}
@@ -48,7 +64,7 @@ Last editted - 30Jan24
       width: 100%;
     {% endif %}
   }
-  .promotion-list .container { justify-content: center; }
+ .promotion-list .container { justify-content: {{section.settings.grid_alignment}}; }
   {% render 'css-loop',
           css: section_css,
           id: section.id
@@ -137,7 +153,7 @@ Last editted - 30Jan24
             <a class="collection-info__caption" href="{{ collection.url }}">
               {% if section.settings.promotion_title_below_image == blank %}
                 <div class="collection-info__caption-wrapper">
-                  <span class="title">
+                  <span class="title title-below-image">
                     {% if title != blank %}
                       {{ title }}
                     {% elsif collection != blank %}
@@ -157,7 +173,7 @@ Last editted - 30Jan24
           </div>
           {% if section.settings.promotion_title_below_image != blank %}
             <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ collection.url }}">
-              <span class="title">
+              <span class="title title-below-image">
                 {% if title != blank %}
                   {{ title }}
                 {% elsif collection != blank %}
@@ -230,7 +246,7 @@ Last editted - 30Jan24
             <a class="collection-info__caption" href="{{ product.url }}">
               {% if section.settings.promotion_title_below_image == blank %}
                 <div class="collection-info__caption-wrapper">
-                  <span class="title">
+                  <span class="title title-below-image">
                     {% if title != blank %}
                       {{ title }}
                     {% elsif product != blank %}
@@ -250,7 +266,7 @@ Last editted - 30Jan24
           </div>
           {% if section.settings.promotion_title_below_image != blank %}
             <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ product.url }}">
-              <span class="title">
+              <span class="title title-below-image">
                 {% if title != blank %}
                   {{ title }}
                 {% elsif product != blank %}
@@ -318,7 +334,7 @@ Last editted - 30Jan24
             <a class="collection-info__caption" href="{{ page.url }}">
               {% if section.settings.promotion_title_below_image == blank %}
                 <div class="collection-info__caption-wrapper">
-                  <span class="title">
+                  <span class="title title-below-image">
                     {% if title != blank %}
                       {{ title }}
                     {% elsif page != blank %}
@@ -338,7 +354,7 @@ Last editted - 30Jan24
           </div>
           {% if section.settings.promotion_title_below_image != blank %}
             <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ page.url }}">
-              <span class="title">
+              <span class="title title-below-image">
                 {% if title != blank %}
                   {{ title }}
                 {% elsif page != blank %}
@@ -409,7 +425,7 @@ Last editted - 30Jan24
             <a class="collection-info__caption" href="{{ article.url }}">
               {% if section.settings.promotion_title_below_image == blank %}
                 <div class="collection-info__caption-wrapper">
-                  <span class="title">
+                  <span class="title title-below-image">
                     {% if title != blank %}
                       {{ title }}
                     {% elsif article != blank %}
@@ -429,7 +445,7 @@ Last editted - 30Jan24
           </div>
           {% if section.settings.promotion_title_below_image != blank %}
             <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ article.url }}">
-              <span class="title">
+              <span class="title title-below-image">
                 {% if title != blank %}
                   {{ title }}
                 {% elsif article != blank %}
@@ -494,7 +510,7 @@ Last editted - 30Jan24
             <a class="collection-info__caption" href="{{ blog.url }}">
               {% if section.settings.promotion_title_below_image == blank %}
                 <div class="collection-info__caption-wrapper">
-                  <span class="title">
+                  <span class="title title-below-image">
                     {% if title != blank %}
                       {{ title }}
                     {% elsif blog != blank %}
@@ -514,7 +530,7 @@ Last editted - 30Jan24
           </div>
           {% if section.settings.promotion_title_below_image != blank %}
             <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ blog.url }}">
-              <span class="title">
+              <span class="title title-below-image">
                 {% if title != blank %}
                   {{ title }}
                 {% elsif blog != blank %}
@@ -554,6 +570,26 @@ Last editted - 30Jan24
       "max": 5,
       "step": 1,
       "default": 3
+    },
+    {
+      "type": "select",
+      "id": "grid_alignment",
+      "label": "Alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
     },
     {
       "type": "checkbox",
@@ -623,6 +659,16 @@ Last editted - 30Jan24
       "id": "overlay_text",
       "label": "Text",
       "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "text_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
     },
     {
       "type": "checkbox",
