@@ -14,12 +14,9 @@
 {% comment %} End content settings {% endcomment %}
 
 {% comment %} Is the color set to transparent? {% endcomment %}
-{%- assign overlay_alpha = section.settings.overlay_background | color_extract: 'alpha' -%}
 {%- assign overlay_text_alpha = section.settings.overlay_text | color_extract: 'alpha' -%}
+
 {% comment %} Opacity level {% endcomment %}
-{% if overlay_alpha != 0 %}
-  {%- assign overlay_background_alpha = section.settings.overlay_background_opacity | divided_by: 100.00 -%}
-{% endif %}
 {% assign opacity = section.settings.overlay_background_opacity %}
 {% assign opacity = opacity | times: 0.01 %}
 
@@ -29,18 +26,16 @@
 
 {%- capture section_css -%}
 
-
-
     .promotion-thumbnail-overlay{
-    content:"";
-    background:{%- render 'color_to_rgba', color:section.settings.overlay_background, opacity:opacity -%};
+      content:"";
+      background:{%- render 'color_to_rgba', color:section.settings.overlay_background, opacity:opacity -%};
       top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    position: absolute;
-    height: 100%;
-    width: 100%;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      position: absolute;
+      height: 100%;
+      width: 100%;
     }
 
     .collection-info__caption-wrapper, .collection-info__caption--below-image .title{
@@ -65,6 +60,7 @@
     color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %}
   }
 {%- endcapture -%}
+
 {% comment %} Section specific CSS {% endcomment %}
 {% style %}
   #shopify-section-{{ section.id }} {
@@ -130,10 +126,12 @@
 
 
   .promotion-list .container { justify-content: center; }
+
   {% render 'css-loop',
           css: section_css,
           id: section.id
   %}
+
   {% render 'css-loop',
           css: section.settings.custom_css,
           id: section.id
