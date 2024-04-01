@@ -1,0 +1,96 @@
+{% comment %}
+  Custom snippet created by JadePuma
+  Last editted - 4/1/24
+
+  Section Usage:
+    - index__promotion-grid
+
+  Values
+      collection: <collection>
+      image: <image>
+      title: <string>
+      button_label: <string>
+      promos_per_row:<integer>
+      toggle_title:boolean
+{% endcomment %}
+
+{% comment %}  * * * Collection * * * {% endcomment %}
+
+{% comment %} Content settings {% endcomment %}
+{% comment %}
+  {%- assign collection = collections[block.settings.feature_collection] -%}
+  {%- assign image = block.settings.image -%}
+  {%- assign title = block.settings.title -%}
+  {%- assign button_label = block.settings.button_label -%}
+{% endcomment %}
+
+{% if image != blank %}
+  {%- assign collection_image = image -%}
+  {%- assign collection_image_alt = image.alt | escape -%}
+{% elsif collection.image != blank %}
+  {%- assign collection_image = collection.image -%}
+  {%- assign collection_image_alt = collection.image.alt | escape -%}
+{% else %}
+  {%- assign collection_image = collection.products.first.featured_image -%}
+  {%- assign collection_image_alt = collection.products.first.featured_image.alt | escape -%}
+{% endif %}
+
+{% assign card_title = '' %}
+
+{% if title != blank %}
+  {% assign card_title = title %}
+{% elsif collection.title != blank %}
+  {% assign card_title = collection.title %}
+{% else %}
+  {% assign card_title = 'homepage.onboarding.collection_title' | t %}
+{% endif %}
+
+<div
+  class="
+    column
+    {% render 'column-width', value: promos_per_row %}
+    thumbnail
+    {% if section.settings.show_gutter == true %}
+      has-gutter
+      has-gutter--mobile
+    {% endif %}
+    list-collection__thumbnail
+    medium-down--one-whole
+    has-margin-bottom
+  "
+>
+  <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
+    <div class="promotion-thumbnail-overlay"></div>
+
+    {% if collection_image != blank %}
+      <div class="thumbnail image__container has-image-crop">
+        {% render 'image-element', image: collection_image.src, alt: collection_image_alt, image_crop: true %}
+      </div>
+    {% else %}
+      {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+      {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
+    {% endif %}
+
+    <a class="collection-info__caption" href="{{ collection.url }}">
+      {% if section.settings.promotion_title_below_image == blank %}
+        <div class="collection-info__caption-wrapper">
+          <span class="title">
+            {{ card_title }}
+          </span>
+          {% render 'button', label: button_label, href: collection.url, style: section.settings.button_style %}
+        </div>
+      {% endif %}
+    </a>
+  </div>
+  {% if section.settings.promotion_title_below_image != blank %}
+    <a
+      class="collection-info__caption-wrapper collection-info__caption--below-image"
+      href="{{ collection.url }}"
+    >
+      <span class="title">
+        {{ card_title }}
+      </span>
+      {% render 'button', label: button_label, href: collection.url, style: section.settings.button_style %}
+    </a>
+  {% endif %}
+</div>

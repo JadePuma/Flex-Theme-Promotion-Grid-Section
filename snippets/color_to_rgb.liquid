@@ -1,0 +1,13 @@
+{% comment %}
+  Custom snippet created by JadePuma
+  Last editted - 4/1/24
+
+  Section Usage:
+    - index__promotion-grid
+{% endcomment %}
+
+{%- liquid
+  assign rgb = color | color_to_rgb
+  assign tail = opacity | prepend: ', ' | append: ')'
+-%}
+{{ rgb | replace: 'rgb', 'rgba' | replace: ')', tail }}

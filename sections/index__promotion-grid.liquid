@@ -1,9 +1,12 @@
 {% comment %}
+  Custom section created by JadePuma
+  Instructions - https://jadepuma.com/blogs/shopify-tutorials/promotions-grid-section-for-the-flex-theme
+  Last editted - 4/1/24
 
-Custom section created by JadePuma
-Instructions - https://jadepuma.com/blogs/shopify-tutorials/promotions-grid-section-for-the-flex-theme
-Last editted - 30Jan24
-
+  SNIPPETS REQUIRED:
+  'color_to_rgba'
+  'collection_card'
+  'product_card'
 {% endcomment %}
 
 {% comment %} Content settings {% endcomment %}
@@ -17,44 +20,51 @@ Last editted - 30Jan24
 {% if overlay_alpha != 0 %}
   {%- assign overlay_background_alpha = section.settings.overlay_background_opacity | divided_by: 100.00 -%}
 {% endif %}
+{% assign opacity = section.settings.overlay_background_opacity %}
+{% assign opacity = opacity | times: 0.01 %}
 
-{% if section.settings.align_height %}
-  {%- assign image_height = section.settings.image_height -%}
-{% endif %}
+{% assign promos_per_row = section.settings.promotions_per_row %}
+{% assign promos_per_row_mobile = section.settings.promotions_per_row_mobile %}
+{% assign text_align = section.settings.promotions_text_align %}
 
 {%- capture section_css -%}
-  {% if section.settings.align_height != blank %}
-    .placeholder-svg {
-      height: {{ image_height }}px;
-      max-height: {{ image_height }}px;
+
+
+
+    .promotion-thumbnail-overlay{
+    content:"";
+    background:{%- render 'color_to_rgba', color:section.settings.overlay_background, opacity:opacity -%};
+      top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    position: absolute;
+    height: 100%;
+    width: 100%;
     }
-  {% endif %}
 
-  .promotion-thumbnail-overlay {
-    background-color: {%- if overlay_alpha != 0 -%}{{ section.settings.overlay_background | color_modify: 'alpha', overlay_background_alpha }}{% endif %};
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-  }
+    .collection-info__caption-wrapper, .collection-info__caption--below-image .title{
+      width:100%;
+      text-align:{{ text_align }};
+    }
 
-  .collection-info__caption span {
+    .collection-info__caption--below-image{
+      {% if text_align == "left" %}
+      {% assign item_align = 'flex-start' %}
+      {% elsif text_align == "center" %}
+        {% assign item_align = text-align %}
+
+      {% elsif text_align == "right" %}
+        {% assign item_align = "flex-end" %}
+
+      {% endif %}
+      align-items:{{ item_align }};
+    }
+  .collection-info__caption span,  .collection-info__caption-wrapper span {
+    font-size: {{ section.settings.font_size }}px;
     color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %}
-      font-size: {{section.settings.text_font_size}}px !important;
   }
-
-  .title-below-image {
-    color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %};
-    font-size: {{section.settings.text_font_size}}px !important;
-  }
-
-.collection-info__caption a{
-  text-align:center;
-}
-  
 {%- endcapture -%}
-
 {% comment %} Section specific CSS {% endcomment %}
 {% style %}
   #shopify-section-{{ section.id }} {
@@ -64,7 +74,62 @@ Last editted - 30Jan24
       width: 100%;
     {% endif %}
   }
- .promotion-list .container { justify-content: {{section.settings.grid_alignment}}; }
+    #shopify-section-{{ section.id }} .container{
+      justify-content:center;
+    }
+    #shopify-section-{{ section.id }}   .collection-info__caption-wrapper{
+           {% if section.settings.promotion_title_below_image != true %}
+
+    padding-left:{{ section.settings.padding-from-left }}%;
+    padding-right:{{ section.settings.padding-from-right }}%;
+    padding-bottom:{{ section.settings.padding-from-bottom }}%;
+      {% endif %}
+  }
+
+  #shopify-section-{{ section.id }} span.title{
+        font-size: {{ section.settings.font_size }};
+        }
+
+
+
+    @media only screen and (max-width:798px){
+      #shopify-section-{{ section.id }}  .has-no-side-gutter .medium-down--one-whole,   #shopify-section-{{ section.id }}  .medium-down--one-whole{
+        {% if promos_per_row_mobile == "1" %}
+          width: calc(100% - 20px);
+        {% elsif promos_per_row_mobile == "2" %}
+          width: calc(50% - 20px);
+        {% endif %}
+      }
+
+      #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    {% if section.settings.width == 'wide' %}
+      width: 100%;
+    {% endif %}
+    display: flex;
+    justify-content: center;
+  }
+
+
+    }
+
+    @media only screen and (max-width:480px){
+      {% if promos_per_row_mobile == "2" %}
+        #shopify-section-{{ section.id }}  .collection-info__caption--below-image{
+    padding:10px;
+  }        {% endif %}
+   #shopify-section-{{ section.id }} .collection-info__caption-wrapper{
+     {% if section.settings.promotion_title_below_image != true %}
+    padding-left:{{ section.settings.padding-from-left-mobile }}%;
+    padding-right:{{ section.settings.padding-from-right-mobile }}%;
+    padding-bottom:{{ section.settings.padding-from-bottom-mobile }}%;
+     {% endif %}}
+  }
+    }
+
+
+  .promotion-list .container { justify-content: center; }
   {% render 'css-loop',
           css: section_css,
           id: section.id
@@ -75,507 +140,252 @@ Last editted - 30Jan24
   %}
 {% endstyle %}
 
-<section class="section
-                {{ section.settings.css_class }} promotion-list
-                is-width-{{ section.settings.width }}
-                {% if section.settings.show_gutter == false %}
-                  has-no-side-gutter
-                  has-background
-                {% else %}
-                  has-gutter-enabled
-                {% endif %}
-                {% if blocks.size > section.settings.promotions_per_row %}
-                  has-multirow-blocks
-                {% endif %}
-                "
-                {% if section.settings.animation != "none" %}
-                  data-scroll-class="{{ section.settings.animation }}"
-                {% endif %}>
-
+<section
+  class="
+    section
+    {{ section.settings.css_class }} promotion-list
+    is-width-{{ section.settings.width }}
+    {% if section.settings.show_gutter == false %}
+      has-no-side-gutter
+      has-background
+    {% else %}
+      has-gutter-enabled
+    {% endif %}
+    {% if blocks.size > promos_per_row %}
+      has-multirow-blocks
+    {% endif %}
+  "
+  {% if section.settings.animation != 'none' %}
+    data-scroll-class="{{ section.settings.animation }}"
+  {% endif %}
+>
   <div class="container">
+    {% render 'heading',
+      title: section.settings.header,
+      heading_tag: 'h2',
+      context: 'page',
+      text_alignment: section.settings.header_alignment
+    %}
     {% if blocks.size > 0 %}
-
       {% for block in blocks %}
+        {% if block.type == 'collection_list_block' %}
+          {% for collection in block.settings.collection_list %}
+            {% render 'collection_card',
+              collection: collections[collection.handle],
+              image: blank,
+              title: collection.title,
+              button_label: block.settings.button_label,
+              promos_per_row: promos_per_row
+            %}
+          {% endfor %}
 
-        {% if block.type == "collection" %}
+        {% elsif block.type == 'product_list_block' %}
+          {% for product in block.settings.product_list %}
+            {% render 'product_card',
+              product: all_products[product.handle],
+              image: blank,
+              title: product.title,
+              button_label: block.settings.button_label,
+              promos_per_row: promos_per_row
+            %}
+          {% endfor %}
+        {% elsif block.type == 'collection' %}
+          {% render 'collection_card',
+            collection: collections[block.settings.feature_collection],
+            image: block.settings.image,
+            title: block.settings.title,
+            button_label: block.settings.button_label,
+            promos_per_row: promos_per_row
+          %}
+        {% elsif block.type == 'product' %}
+          {% comment %}  * * * Product * * * {% endcomment %}
 
-{% comment %}  * * * Collection * * * {% endcomment %}
+          {% comment %} Content settings {% endcomment %}
+          {% render 'product_card',
+            product: all_products[block.settings.feature_product],
+            image: block.settings.image,
+            title: block.settings.title,
+            button_label: block.settings.button_label,
+            promos_per_row: promos_per_row
+          %}
 
-        {% comment %} Content settings {% endcomment %}
-        {%- assign collection = collections[block.settings.feature_collection] -%}
-        {%- assign image = block.settings.image -%}
-        {%- assign title = block.settings.title -%}
-        {%- assign button_label = block.settings.button_label -%}
-        {% comment %} End content settings {% endcomment %}
+        {% elsif block.type == 'page' %}
+          {% comment %}  * * * Page * * * {% endcomment %}
 
-        {% if image != blank %}
-          {%- assign collection_image = image -%}
-          {%- assign collection_image_alt = image.alt | escape -%}
-        {% elsif collection.image != blank %}
-          {%- assign collection_image = collection.image -%}
-          {%- assign collection_image_alt = collection.image.alt | escape -%}
-        {% else collection.empty? == false %}
-          {%- assign collection_image = collection.products.first.featured_image -%}
-          {%- assign collection_image_alt = collection.products.first.featured_image.alt | escape -%}
+          {% comment %} Content settings {% endcomment %}
+
+          {%- assign page = pages[block.settings.feature_page] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign title = block.settings.title -%}
+          {%- assign button_label = block.settings.button_label -%}
+          {% comment %} End content settings {% endcomment %}
+
+          {% if image != blank %}
+            {%- assign page_graphic = image -%}
+            {%- assign page_graphic_alt = image.alt | escape -%}
+          {% endif %}
+
+          <div
+            class="
+              column
+              {% render 'column-width', value: promos_per_row %}
+              thumbnail
+              {% if section.settings.show_gutter == true %}
+                has-gutter
+                has-gutter--mobile
+              {% endif %}
+              list-collection__thumbnail
+              medium-down--one-whole
+            "
+          >
+            <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
+              <div class="promotion-thumbnail-overlay"></div>
+              {% if page_graphic != blank %}
+                <div class="thumbnail image__container has-image-crop">
+                  {% render 'image-element', image: page_graphic.src, alt: page_graphic_alt, image_crop: true %}
+                </div>
+              {% else %}
+                {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+                {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+
+              <a class="collection-info__caption" href="{{ page.url }}">
+                {% if section.settings.promotion_title_below_image == blank %}
+                  <div class="collection-info__caption-wrapper">
+                    <span class="title">
+                      {% if title != blank %}
+                        {{ title }}
+                      {% elsif page != blank %}
+                        {{ page.title }}
+                      {% else %}
+                        {{ 'homepage.onboarding.collection_title' | t }}
+                      {% endif %}
+                    </span>
+                    {% render 'button', label: button_label, href: page.url, style: section.settings.button_style %}
+                  </div>
+                {% endif %}
+              </a>
+            </div>
+            {% if section.settings.promotion_title_below_image != blank %}
+              <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ page.url }}">
+                <span class="title">
+                  {% if title != blank %}
+                    {{ title }}
+                  {% elsif page != blank %}
+                    {{ page.title }}
+                  {% else %}
+                    {{ 'homepage.onboarding.collection_title' | t }}
+                  {% endif %}
+                </span>
+                {% render 'button', label: button_label, href: page.url, style: section.settings.button_style %}
+              </a>
+            {% endif %}
+          </div>
+
+        {% elsif block.type == 'article' %}
+          {% comment %}  * * * Article * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+          {%- assign article = articles[block.settings.feature_article] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign title = block.settings.title -%}
+          {%- assign button_label = block.settings.button_label -%}
+          {% comment %} End content settings {% endcomment %}
+
+          {% if image != blank %}
+            {%- assign article_image = image -%}
+            {%- assign article_image_alt = image.alt | escape -%}
+          {% else %}
+            {%- assign article_image = article.image -%}
+            {%- assign article_image_alt = article.image.alt | escape -%}
+          {% endif %}
+
+          <div
+            class="
+              column
+              {% render 'column-width', value: promos_per_row %}
+              thumbnail
+              {% if section.settings.show_gutter == true %}
+                has-gutter
+                has-gutter--mobile
+              {% endif %}
+              list-collection__thumbnail
+              medium-down--one-whole
+            "
+          >
+            <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
+              <div class="promotion-thumbnail-overlay"></div>
+
+              {% if article_image != blank %}
+                <div class="thumbnail image__container has-image-crop">
+                  {% render 'image-element', image: article_image.src, alt: article_image_alt, image_crop: true %}
+                </div>
+              {% else %}
+                {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+                {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+
+              <a class="collection-info__caption" href="{{ article.url }}">
+                {% if section.settings.promotion_title_below_image == blank %}
+                  <div class="collection-info__caption-wrapper">
+                    <span class="title">
+                      {% if title != blank %}
+                        {{ title }}
+                      {% elsif article != blank %}
+                        {{ article.title }}
+                      {% else %}
+                        {{ 'homepage.onboarding.collection_title' | t }}
+                      {% endif %}
+                    </span>
+                    {% render 'button', label: button_label, href: article.url, style: section.settings.button_style %}
+                  </div>
+                {% endif %}
+              </a>
+            </div>
+            {% if section.settings.promotion_title_below_image != blank %}
+              <a
+                class="collection-info__caption-wrapper collection-info__caption--below-image"
+                href="{{ article.url }}"
+              >
+                <span class="title">
+                  {% if title != blank %}
+                    {{ title }}
+                  {% elsif article != blank %}
+                    {{ article.title }}
+                  {% else %}
+                    {{ 'homepage.onboarding.collection_title' | t }}
+                  {% endif %}
+                </span>
+                {% render 'button', label: button_label, href: article.url, style: section.settings.button_style %}
+              </a>
+            {% endif %}
+          </div>
         {% endif %}
-
-        <div class="column
-                    {% render 'column-width', value: section.settings.promotions_per_row %}
-                    thumbnail
-                    {% if section.settings.align_height %}
-                      list-collection--align-height
-                    {% endif %}
-                    {% if section.settings.show_gutter == true %}
-                      has-gutter
-                      has-gutter--mobile
-                    {% endif %}
-                    list-collection__thumbnail
-                    medium-down--one-whole">
-
-          <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
-            <div class="promotion-thumbnail-overlay"></div>
-
-            {% if collection_image != blank %}
-              <div class="thumbnail image__container has-image-crop">
-                {%
-                  render 'image-element',
-                  image: collection_image.src,
-                  alt: collection_image_alt,
-                  image_crop: true,
-                  max_height: image_height,
-                %}
-              </div>
-            {% else %}
-              {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
-              {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
-            {% endif %}
-
-            <a class="collection-info__caption" href="{{ collection.url }}">
-              {% if section.settings.promotion_title_below_image == blank %}
-                <div class="collection-info__caption-wrapper">
-                  <span class="title title-below-image">
-                    {% if title != blank %}
-                      {{ title }}
-                    {% elsif collection != blank %}
-                      {{ collection.title }}
-                    {% else %}
-                      {{ "homepage.onboarding.collection_title" | t }}
-                    {% endif %}
-                  </span>
-                  {% render 'button',
-                          label: button_label,
-                          href: collection.url,
-                          style: section.settings.button_style
-                  %}
-                </div>
-              {% endif %}
-            </a>
-          </div>
-          {% if section.settings.promotion_title_below_image != blank %}
-            <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ collection.url }}">
-              <span class="title title-below-image">
-                {% if title != blank %}
-                  {{ title }}
-                {% elsif collection != blank %}
-                  {{ collection.title }}
-                {% else %}
-                  {{ "homepage.onboarding.collection_title" | t }}
-                {% endif %}
-              </span>
-              {% render 'button',
-                      label: button_label,
-                      href: collection.url,
-                      style: section.settings.button_style
-              %}
-            </a>
-          {% endif %}
-        </div>
-
-
-        {% elsif block.type == "product" %}
-
-{% comment %}  * * * Product * * * {% endcomment %}
-
-        {% comment %} Content settings {% endcomment %}
-         
-        {%- assign product = all_products[block.settings.feature_product] -%}
-        {%- assign image = block.settings.image -%}
-        {%- assign title = block.settings.title -%}
-        {%- assign button_label = block.settings.button_label -%}
-        {% comment %} End content settings {% endcomment %}
-
-        {% if image != blank %}
-          {%- assign product_image = image -%}
-          {%- assign product_image_alt = image.alt | escape -%}
-        {% else %}
-          {%- assign product_image = product.featured_image -%}
-          {%- assign product_image_alt = product.featured_image.alt | escape -%}
-        {% endif %}
-
-        <div class="column
-                    {% render 'column-width', value: section.settings.promotions_per_row %}
-                    thumbnail
-                    {% if section.settings.align_height %}
-                      list-collection--align-height
-                    {% endif %}
-                    {% if section.settings.show_gutter == true %}
-                      has-gutter
-                      has-gutter--mobile
-                    {% endif %}
-                    list-collection__thumbnail
-                    medium-down--one-whole">
-
-          <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
-            <div class="promotion-thumbnail-overlay"></div>
-
-            {% if product_image != blank %}
-              <div class="thumbnail image__container has-image-crop">
-                {%
-                  render 'image-element',
-                  image: product_image.src,
-                  alt: product_image_alt,
-                  image_crop: true,
-                  max_height: image_height,
-                %}
-              </div>
-            {% else %}
-              {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
-              {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
-            {% endif %}
-
-            <a class="collection-info__caption" href="{{ product.url }}">
-              {% if section.settings.promotion_title_below_image == blank %}
-                <div class="collection-info__caption-wrapper">
-                  <span class="title title-below-image">
-                    {% if title != blank %}
-                      {{ title }}
-                    {% elsif product != blank %}
-                      {{ product.title }}
-                    {% else %}
-                      {{ "homepage.onboarding.collection_title" | t }}
-                    {% endif %}
-                  </span>
-                  {% render 'button',
-                          label: button_label,
-                          href: product.url,
-                          style: section.settings.button_style
-                  %}
-                </div>
-              {% endif %}
-            </a>
-          </div>
-          {% if section.settings.promotion_title_below_image != blank %}
-            <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ product.url }}">
-              <span class="title title-below-image">
-                {% if title != blank %}
-                  {{ title }}
-                {% elsif product != blank %}
-                  {{ product.title }}
-                {% else %}
-                  {{ "homepage.onboarding.collection_title" | t }}
-                {% endif %}
-              </span>
-              {% render 'button',
-                      label: button_label,
-                      href: product.url,
-                      style: section.settings.button_style
-              %}
-            </a>
-          {% endif %}
-        </div>
-
-        {% elsif block.type == "page" %}
-
-{% comment %}  * * * Page * * * {% endcomment %}
-
-        {% comment %} Content settings {% endcomment %}
-         
-        {%- assign page = pages[block.settings.feature_page] -%}
-        {%- assign image = block.settings.image -%}
-        {%- assign title = block.settings.title -%}
-        {%- assign button_label = block.settings.button_label -%}
-        {% comment %} End content settings {% endcomment %}
-
-        {% if image != blank %}
-          {%- assign page_graphic = image -%}
-          {%- assign page_graphic_alt = image.alt | escape -%}
-        {% endif %}
-
-        <div class="column
-                    {% render 'column-width', value: section.settings.promotions_per_row %}
-                    thumbnail
-                    {% if section.settings.align_height %}
-                      list-collection--align-height
-                    {% endif %}
-                    {% if section.settings.show_gutter == true %}
-                      has-gutter
-                      has-gutter--mobile
-                    {% endif %}
-                    list-collection__thumbnail
-                    medium-down--one-whole">
-
-          <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
-            <div class="promotion-thumbnail-overlay"></div>
-            {% if page_graphic != blank %}
-              <div class="thumbnail image__container has-image-crop">
-                {%
-                  render 'image-element',
-                  image: page_graphic.src,
-                  alt: page_graphic_alt,
-                  image_crop: true,
-                  max_height: image_height,
-                %}
-              </div>
-            {% else %}
-              {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
-              {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
-            {% endif %}
-
-            <a class="collection-info__caption" href="{{ page.url }}">
-              {% if section.settings.promotion_title_below_image == blank %}
-                <div class="collection-info__caption-wrapper">
-                  <span class="title title-below-image">
-                    {% if title != blank %}
-                      {{ title }}
-                    {% elsif page != blank %}
-                      {{ page.title }}
-                    {% else %}
-                      {{ "homepage.onboarding.collection_title" | t }}
-                    {% endif %}
-                  </span>
-                  {% render 'button',
-                          label: button_label,
-                          href: page.url,
-                          style: section.settings.button_style
-                  %}
-                </div>
-              {% endif %}
-            </a>
-          </div>
-          {% if section.settings.promotion_title_below_image != blank %}
-            <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ page.url }}">
-              <span class="title title-below-image">
-                {% if title != blank %}
-                  {{ title }}
-                {% elsif page != blank %}
-                  {{ page.title }}
-                {% else %}
-                  {{ "homepage.onboarding.collection_title" | t }}
-                {% endif %}
-              </span>
-              {% render 'button',
-                      label: button_label,
-                      href: page.url,
-                      style: section.settings.button_style
-              %}
-            </a>
-          {% endif %}
-        </div>
-
-        {% elsif block.type == "article" %}
-          
-{% comment %}  * * * Article * * * {% endcomment %}
-
-        {% comment %} Content settings {% endcomment %}
-        {%- assign article = articles[block.settings.feature_article] -%}
-        {%- assign image = block.settings.image -%}
-        {%- assign title = block.settings.title -%}
-        {%- assign button_label = block.settings.button_label -%}
-        {% comment %} End content settings {% endcomment %}
-
-        {% if image != blank %}
-          {%- assign article_image = image -%}
-          {%- assign article_image_alt = image.alt | escape -%}
-        {% else %}
-          {%- assign article_image = article.image -%}
-          {%- assign article_image_alt = article.image.alt | escape -%}
-        {% endif %}
-
-        <div class="column
-                    {% render 'column-width', value: section.settings.promotions_per_row %}
-                    thumbnail
-                    {% if section.settings.align_height %}
-                      list-collection--align-height
-                    {% endif %}
-                    {% if section.settings.show_gutter == true %}
-                      has-gutter
-                      has-gutter--mobile
-                    {% endif %}
-                    list-collection__thumbnail
-                    medium-down--one-whole">
-
-          <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
-            <div class="promotion-thumbnail-overlay"></div>
-
-            {% if article_image != blank %}
-              <div class="thumbnail image__container has-image-crop">
-                {%
-                  render 'image-element',
-                  image: article_image.src,
-                  alt: article_image_alt,
-                  image_crop: true,
-                  max_height: image_height,
-                %}
-              </div>
-            {% else %}
-              {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
-              {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
-            {% endif %}
-
-            <a class="collection-info__caption" href="{{ article.url }}">
-              {% if section.settings.promotion_title_below_image == blank %}
-                <div class="collection-info__caption-wrapper">
-                  <span class="title title-below-image">
-                    {% if title != blank %}
-                      {{ title }}
-                    {% elsif article != blank %}
-                      {{ article.title }}
-                    {% else %}
-                      {{ "homepage.onboarding.collection_title" | t }}
-                    {% endif %}
-                  </span>
-                  {% render 'button',
-                          label: button_label,
-                          href: article.url,
-                          style: section.settings.button_style
-                  %}
-                </div>
-              {% endif %}
-            </a>
-          </div>
-          {% if section.settings.promotion_title_below_image != blank %}
-            <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ article.url }}">
-              <span class="title title-below-image">
-                {% if title != blank %}
-                  {{ title }}
-                {% elsif article != blank %}
-                  {{ article.title }}
-                {% else %}
-                  {{ "homepage.onboarding.collection_title" | t }}
-                {% endif %}
-              </span>
-              {% render 'button',
-                      label: button_label,
-                      href: article.url,
-                      style: section.settings.button_style
-              %}
-            </a>
-          {% endif %}
-        </div>
-
-        {% elsif block.type == "blog" %}
-          
-{% comment %}  * * * Blog * * * {% endcomment %}
-
-        {% comment %} Content settings {% endcomment %}
-        {%- assign blog = blogs[block.settings.feature_blog] -%}
-        {%- assign image = block.settings.image -%}
-        {%- assign title = block.settings.title -%}
-        {%- assign button_label = block.settings.button_label -%}
-        {%- assign blog_image = image -%}
-        {%- assign blog_image_alt = image.alt | escape -%}
-        {% comment %} End content settings {% endcomment %}
-
-        <div class="column
-                    {% render 'column-width', value: section.settings.promotions_per_row %}
-                    thumbnail
-                    {% if section.settings.align_height %}
-                      list-collection--align-height
-                    {% endif %}
-                    {% if section.settings.show_gutter == true %}
-                      has-gutter
-                      has-gutter--mobile
-                    {% endif %}
-                    list-collection__thumbnail
-                    medium-down--one-whole">
-
-          <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
-            <div class="promotion-thumbnail-overlay"></div>
-
-            {% if blog_image != blank %}
-              <div class="thumbnail image__container has-image-crop">
-                {%
-                  render 'image-element',
-                  image: blog_image.src,
-                  alt: blog_image_alt,
-                  image_crop: true,
-                  max_height: image_height,
-                %}
-              </div>
-            {% else %}
-              {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
-              {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
-            {% endif %}
-
-            <a class="collection-info__caption" href="{{ blog.url }}">
-              {% if section.settings.promotion_title_below_image == blank %}
-                <div class="collection-info__caption-wrapper">
-                  <span class="title title-below-image">
-                    {% if title != blank %}
-                      {{ title }}
-                    {% elsif blog != blank %}
-                      {{ blog.title }}
-                    {% else %}
-                      {{ "homepage.onboarding.collection_title" | t }}
-                    {% endif %}
-                  </span>
-                  {% render 'button',
-                          label: button_label,
-                          href: blog.url,
-                          style: section.settings.button_style
-                  %}
-                </div>
-              {% endif %}
-            </a>
-          </div>
-          {% if section.settings.promotion_title_below_image != blank %}
-            <a class="collection-info__caption-wrapper collection-info__caption--below-image" href="{{ blog.url }}">
-              <span class="title title-below-image">
-                {% if title != blank %}
-                  {{ title }}
-                {% elsif blog != blank %}
-                  {{ blog.title }}
-                {% else %}
-                  {{ "homepage.onboarding.collection_title" | t }}
-                {% endif %}
-              </span>
-              {% render 'button',
-                      label: button_label,
-                      href: blog.url,
-                      style: section.settings.button_style
-              %}
-            </a>
-          {% endif %}
-        </div>
-
-      {% endif %}
-
       {% endfor %}
-
     {% endif %}
   </div>
 </section>
 
 {% schema %}
 {
-  "name": "JP Promotion grid",
+  "name": "Promotion grid",
   "class": "collection-list",
   "max_blocks": 24,
   "settings": [
     {
-      "type": "range",
-      "id": "promotions_per_row",
-      "label": "Promotions per row",
-      "min": 2,
-      "max": 5,
-      "step": 1,
-      "default": 3
+      "type": "header",
+      "content": "Tutorial",
+      "info": "[See Tutorial](https://www.loom.com/share/a49d2b11e3ca4276aaab3c1fef377fc6?sid=530ce80e-d03d-44a1-8709-df346b05523a)"
+    },
+    {
+      "type": "text",
+      "id": "header",
+      "label": "Header"
     },
     {
       "type": "select",
-      "id": "grid_alignment",
-      "label": "Alignment",
-      "default": "left",
+      "id": "header_alignment",
+      "label": "Header Alignment",
       "options": [
         {
           "value": "left",
@@ -589,24 +399,33 @@ Last editted - 30Jan24
           "value": "right",
           "label": "Right"
         }
-      ]
-    },
-    {
-      "type": "checkbox",
-      "id": "align_height",
-      "label": "Align to height",
-      "default": false
+      ],
+      "default": "center"
     },
     {
       "type": "range",
-      "id": "image_height",
-      "label": "Image height",
-      "min": 200,
-      "max": 400,
-      "step": 10,
-      "default": 400,
-      "unit": "px",
-      "info": "Applied when 'Align to height' is also enabled. [Learn more](https://help.outofthesandbox.com/hc/en-us/articles/360024344614)"
+      "id": "promotions_per_row",
+      "label": "Promotions per row",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "promotions_per_row_mobile",
+      "label": "Promotions per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
     },
     {
       "type": "checkbox",
@@ -662,20 +481,104 @@ Last editted - 30Jan24
     },
     {
       "type": "range",
-      "id": "text_font_size",
-      "label": "Font size",
-      "min": 10,
-      "max": 50,
+      "id": "font_size",
+      "label": "Font Size",
+      "min": 0,
+      "max": 100,
       "step": 1,
       "default": 16,
       "unit": "px"
     },
     {
+      "type": "select",
+      "id": "promotions_text_align",
+      "label": "Text Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
       "type": "checkbox",
       "id": "promotion_title_below_image",
       "label": "Show title below image",
-      "default": true
+      "default": false
     },
+    {
+      "type": "header",
+      "content": "Title Spacing Desktop",
+      "info": "Only applies if title is inside image."
+    },
+    {
+      "type": "range",
+      "id": "padding-from-left",
+      "label": "From Left Spacing",
+      "min": 0,
+      "max": 80,
+      "default": 0,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "padding-from-right",
+      "label": "From Right Spacing",
+      "min": 0,
+      "max": 80,
+      "default": 0,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "padding-from-bottom",
+      "label": "From Bottom Spacing",
+      "min": 0,
+      "max": 80,
+      "default": 0,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Title Spacing Mobile"
+    },
+    {
+      "type": "range",
+      "id": "padding-from-left-mobile",
+      "label": "From Left Spacing",
+      "min": 0,
+      "max": 80,
+      "default": 0,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "padding-from-right-mobile",
+      "label": "From Right Spacing",
+      "min": 0,
+      "max": 80,
+      "default": 0,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "padding-from-bottom-mobile",
+      "label": "From Bottom Spacing",
+      "min": 0,
+      "max": 80,
+      "default": 0,
+      "unit": "%"
+    },
+
     {
       "type": "header",
       "content": "Layout"
@@ -715,6 +618,24 @@ Last editted - 30Jan24
       "type": "range",
       "id": "padding_bottom",
       "label": "Bottom spacing",
+      "min": 0,
+      "max": 80,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top spacing Mobile",
+      "min": 0,
+      "max": 80,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom spacing Mobile",
       "min": 0,
       "max": 80,
       "default": 20,
@@ -778,13 +699,47 @@ Last editted - 30Jan24
   ],
   "blocks": [
     {
+      "type": "collection_list_block",
+      "name": "Collection List",
+      "settings": [
+        {
+          "type": "collection_list",
+          "id": "collection_list",
+          "label": "Collections to Show"
+        },
+
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "product_list_block",
+      "name": "Product List",
+      "settings": [
+        {
+          "type": "product_list",
+          "id": "product_list",
+          "label": "Products to Show"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
       "type": "collection",
       "name": "Collection",
       "settings": [
         {
           "type": "collection",
           "id": "feature_collection",
-          "label": "Collection"
+          "label": "Collection",
+          "info": "The collection photo and title will not loaded if the collection is a draft."
         },
         {
           "type": "image_picker",
@@ -811,7 +766,8 @@ Last editted - 30Jan24
         {
           "type": "product",
           "id": "feature_product",
-          "label": "Product"
+          "label": "Product",
+          "info": "The product photo and title will not loaded if the collection is a draft."
         },
         {
           "type": "image_picker",
@@ -883,38 +839,12 @@ Last editted - 30Jan24
           "label": "Button label"
         }
       ]
-    },
-    {
-      "type": "blog",
-      "name": "blog",
-      "settings": [
-        {
-          "type": "blog",
-          "id": "feature_blog",
-          "label": "Blog"
-        },
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Image"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Heading"
-        },
-        {
-          "type": "text",
-          "id": "button_label",
-          "label": "Button label"
-        }
-      ]
     }
   ],
   "presets": [
     {
-      "name": "JP Promotion grid",
-      "category": "JadePuma",
+      "name": "Promotion grid",
+      "category": "Image",
       "settings": {},
       "blocks": [
         {
@@ -928,9 +858,6 @@ Last editted - 30Jan24
         },
         {
           "type": "article"
-        },
-        {
-          "type": "blog"
         }
       ]
     }
