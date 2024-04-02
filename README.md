@@ -71,7 +71,7 @@ Renders the section heading. Requires:
 By ensuring these snippets are included and properly configured in your theme, the Promotion Grid section can be fully functional and customized to fit the design and functionality needs of your Shopify store.
 
 ## Tutorial Video
-
+[Tutorial](https://youtu.be/g8mlbpmCquA)
 
 ## Installation
 
