@@ -1,0 +1,70 @@
+{% comment %}
+  Jadepuma Snippet for JP Promotion Grid
+
+    Required Values
+        promotion:<obj>
+        promotion_img: <image>
+        promotion_img_alt: <string>
+        card_title: <string>
+        button_label: <string>
+        promos_per_row:<integer>
+        image_crop:boolean
+        image_height:integer
+{% endcomment %}
+
+{% comment %} Link should wrap entire el {% endcomment %}
+{% liquid
+  assign ss = section.settings
+%}
+<div
+  class="
+    column
+    {% render 'column-width', value: promos_per_row %}
+    thumbnail
+    {% if section.settings.align_height %}
+        list-collection--align-height
+    {% endif %}
+    {% if section.settings.show_gutter == true %}
+      has-gutter
+      has-gutter--mobile
+    {% endif %}
+    list-collection__thumbnail
+    medium-down--one-whole
+    has-margin-bottom
+    promotion_card
+  "
+>
+  <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
+    <a class="promotion-thumbnail-overlay collection-info__caption" href="{{ promotion.url }}"></a>
+    {% if promotion_img != blank %}
+      <div class="thumbnail image__container has-image-crop">
+        {% render 'image-element',
+          image: promotion_img.src,
+          alt: promotion_img_alt,
+          image_crop: image_crop,
+          max_height: image_height
+        %}
+      </div>
+    {% else %}
+      {% capture num %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+      {{ 'collection-' | append: num | placeholder_svg_tag: 'placeholder-svg' }}
+    {% endif %}
+  </div>
+  <a
+    class="promotion_title_container text-align-{{ ss.btn-text_alignment }} collection-info__caption-wrapper"
+    href="{{ promotion.url }}"
+  >
+    <span class="promotion_title">
+      <{{ ss.text_font_size2 }}>
+        {% if card_title != blank %}
+          {{ card_title }}
+        {% elsif promotion.title != blank %}
+          {{ promotion.title }}
+        {% else %}
+          PROMOTION TITLE
+        {% endif %}
+      </{{ ss.text_font_size2 }}>
+    </span>
+    {% render 'button', label: button_label, href: promotion.url, style: section.settings.button_style %}
+  </a>
+</div>

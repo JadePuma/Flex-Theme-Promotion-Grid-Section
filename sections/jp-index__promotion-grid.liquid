@@ -1,0 +1,855 @@
+{% comment %}
+  Custom section created by JadePuma
+  Instructions - https://jadepuma.com/blogs/shopify-tutorials/promotions-grid-section-for-the-flex-theme
+  Last editted - 30Jan24
+{% endcomment %}
+
+{% comment %} Content settings {% endcomment %}
+
+{% liquid
+  assign blocks = section.blocks
+  assign ss = section.settings
+%}
+{% comment %} End content settings {% endcomment %}
+
+{% comment %} Is the color set to transparent? {% endcomment %}
+{%- assign overlay_alpha = section.settings.overlay_background | color_extract: 'alpha' -%}
+{%- assign overlay_text_alpha = section.settings.overlay_text | color_extract: 'alpha' -%}
+{% comment %} Opacity level {% endcomment %}
+{% if overlay_alpha != 0 %}
+  {%- assign overlay_background_alpha = section.settings.overlay_background_opacity | divided_by: 100.00 -%}
+{% endif %}
+
+{% if section.settings.align_height %}
+  {%- assign image_height = section.settings.image_height -%}
+{% endif %}
+
+{% capture bg-color %}
+    {%- if overlay_alpha != 0 -%}
+        {{ section.settings.overlay_background | color_modify: 'alpha', overlay_background_alpha }}
+    {% endif %}
+{% endcapture %}
+
+{%- capture section_css -%}
+  {% if section.settings.align_height != blank %}
+    .placeholder-svg {
+      height: {{ image_height }}px;
+      max-height: {{ image_height }}px;
+    }
+  {% endif %}
+
+  .promotion-thumbnail-overlay {
+
+    {% if ss.background_type == 'full' or ss.background_type == 'both' %}
+        background-color: {{ bg-color }} ;
+    {% endif %}
+
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+  }
+
+  .collection-info__caption span {
+    color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %}
+      {% comment %} font-size: {{section.settings.text_font_size}}px !important; {% endcomment %}
+  }
+
+  .title-below-image {
+    {% comment %} color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %};
+    font-size: {{section.settings.text_font_size}}px !important; {% endcomment %}
+  }
+
+{% comment %} .collection-info__caption a{
+  text-align:center;
+} {% endcomment %}
+  
+{%- endcapture -%}
+
+{% capture item_alignment %}
+    {% if ss.btn-text_alignment == 'right' %}
+        end
+    {% elsif ss.btn-text_alignment == 'left' %}
+        start
+    {% else %}
+        {{ ss.btn-text_alignment }}
+    {% endif %}
+{% endcapture %}
+
+{% comment %} Section specific CSS {% endcomment %}
+{% style %}
+   #shopify-section-{{ section.id }} {
+     padding-top: {{ section.settings.padding_top }}px;
+     padding-bottom: {{ section.settings.padding_bottom }}px;
+     {% if section.settings.width == 'wide' %}
+       width: 100%;
+     {% endif %}
+   }
+  .promotion-list .container { justify-content: {{section.settings.grid_alignment}}; }
+
+  .promotion_title > h2,
+  .promotion_title > h3,
+  .promotion_title > h4,
+  .promotion_title > h5,
+  .promotion_title > h6,
+  .promotion_title > p {
+    color:{{ ss.overlay_text }};
+  }
+
+  .promotion_card{
+    position:relative;
+    height:fit-content;
+  }
+
+  .promotion_title_container {
+    {% unless section.settings.promotion_title_below_image %}
+      position:absolute;
+      bottom:0;
+    {% endunless %}
+    {% if ss.background_type == 'text' or ss.background_type == 'both'  %}
+        background-color:{{ bg-color }};
+    {% endif %}
+    width:100%;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:{{ item_alignment }};
+  }
+
+  .promotion_title_container{
+    z-index:2;
+  }
+
+   {% render 'css-loop',
+           css: section_css,
+           id: section.id
+   %}
+   {% render 'css-loop',
+           css: section.settings.custom_css,
+           id: section.id
+   %}
+{% endstyle %}
+
+<section
+  class="
+    section
+    {{ section.settings.css_class }} promotion-list
+    is-width-{{ section.settings.width }}
+    {% if section.settings.show_gutter == false %}
+      has-no-side-gutter
+      has-background
+    {% else %}
+      has-gutter-enabled
+    {% endif %}
+    {% if blocks.size > section.settings.promotions_per_row %}
+      has-multirow-blocks
+    {% endif %}
+  "
+  {% if section.settings.animation != 'none' %}
+    data-scroll-class="{{ section.settings.animation }}"
+  {% endif %}
+>
+  <div class="container">
+    {% if blocks.size > 0 %}
+      {% for block in blocks %}
+        {% if block.type == 'collection' %}
+          {% comment %}  * * * Collection * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+          {%- assign collection = collections[block.settings.feature_collection] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign title = block.settings.title -%}
+          {%- assign button_label = block.settings.button_label -%}
+          {% comment %} End content settings {% endcomment %}
+
+          {% if image != blank %}
+            {%- assign collection_image = image -%}
+            {%- assign collection_image_alt = image.alt | escape -%}
+          {% elsif collection.image != blank %}
+            {%- assign collection_image = collection.image -%}
+            {%- assign collection_image_alt = collection.image.alt | escape -%}
+          {% else %}
+            {%- assign collection_image = collection.products.first.featured_image -%}
+            {%- assign collection_image_alt = collection.products.first.featured_image.alt | escape -%}
+          {% endif %}
+
+          {% render 'jp-promo-grid-card',
+            promotion: collection,
+            promotion_img: collection_image,
+            promotion_img_alt: collection_image_alt,
+            card_title: title,
+            button_label: button_label,
+            promos_per_row: section.settings.promotions_per_row,
+            image_crop: true,
+            image_height: image_height
+          %}
+
+        {% elsif block.type == 'product' %}
+          {% comment %}  * * * Product * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+          {%- assign product = all_products[block.settings.feature_product] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign title = block.settings.title -%}
+          {%- assign button_label = block.settings.button_label -%}
+          {% comment %} End content settings {% endcomment %}
+
+          {% if image != blank %}
+            {%- assign product_image = image -%}
+            {%- assign product_image_alt = image.alt | escape -%}
+          {% else %}
+            {%- assign product_image = product.featured_image -%}
+            {%- assign product_image_alt = product.featured_image.alt | escape -%}
+          {% endif %}
+
+          {% render 'jp-promo-grid-card',
+            promotion: product,
+            promotion_img: product_image,
+            promotion_img_alt: product_image_alt,
+            card_title: title,
+            button_label: button_label,
+            promos_per_row: section.settings.promotions_per_row,
+            image_crop: true,
+            image_height: image_height
+          %}
+
+        {% elsif block.type == 'page' %}
+          {% comment %}  * * * Page * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+
+          {%- assign page = pages[block.settings.feature_page] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign title = block.settings.title -%}
+          {%- assign button_label = block.settings.button_label -%}
+          {% comment %} End content settings {% endcomment %}
+          {%- assign page_graphic = blank -%}
+          {%- assign page_graphic_alt = blank -%}
+          {% if image != blank %}
+            {%- assign page_graphic = image -%}
+            {%- assign page_graphic_alt = image.alt | escape -%}
+          {% endif %}
+
+          {% render 'jp-promo-grid-card',
+            promotion: page,
+            promotion_img: page_graphic,
+            promotion_img_alt: page_graphic_alt,
+            card_title: title,
+            button_label: button_label,
+            promos_per_row: section.settings.promotions_per_row,
+            image_crop: true,
+            image_height: image_height
+          %}
+
+        {% elsif block.type == 'article' %}
+          {% comment %}  * * * Article * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+          {%- assign article = articles[block.settings.feature_article] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign title = block.settings.title -%}
+          {%- assign button_label = block.settings.button_label -%}
+          {% comment %} End content settings {% endcomment %}
+
+          {% if image != blank %}
+            {%- assign article_image = image -%}
+            {%- assign article_image_alt = image.alt | escape -%}
+          {% else %}
+            {%- assign article_image = article.image -%}
+            {%- assign article_image_alt = article.image.alt | escape -%}
+          {% endif %}
+
+          {% render 'jp-promo-grid-card',
+            promotion: article,
+            promotion_img: article_image,
+            promotion_img_alt: article_image_alt,
+            card_title: title,
+            button_label: button_label,
+            promos_per_row: section.settings.promotions_per_row,
+            image_crop: true,
+            image_height: image_height
+          %}
+
+        {% elsif block.type == 'blog' %}
+          {% comment %}  * * * Blog * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+          {%- assign blog = blogs[block.settings.feature_blog] -%}
+          {%- assign image = block.settings.image -%}
+          {%- assign blog_image = image -%}
+          {%- assign blog_image_alt = image.alt | escape -%}
+          {% comment %} End content settings {% endcomment %}
+
+          {% render 'jp-promo-grid-card',
+            promotion: blog,
+            promotion_img: blog_image,
+            promotion_img_alt: blog_image_alt,
+            card_title: block.settings.title,
+            button_label: block.settings.button_label,
+            promos_per_row: section.settings.promotions_per_row,
+            image_crop: true,
+            image_height: image_height
+          %}
+        {% elsif block.type == 'collection_list_block' %}
+          {% for collection in block.settings.collection_list %}
+            {% comment %} Content settings {% endcomment %}
+            {%- assign collection = collections[block.settings.feature_collection] -%}
+            {%- assign image = block.settings.image -%}
+            {%- assign title = block.settings.title -%}
+            {%- assign button_label = block.settings.button_label -%}
+            {% comment %} End content settings {% endcomment %}
+
+            {% if image != blank %}
+              {%- assign collection_image = image -%}
+              {%- assign collection_image_alt = image.alt | escape -%}
+            {% elsif collection.image != blank %}
+              {%- assign collection_image = collection.image -%}
+              {%- assign collection_image_alt = collection.image.alt | escape -%}
+            {% else %}
+              {%- assign collection_image = collection.products.first.featured_image -%}
+              {%- assign collection_image_alt = collection.products.first.featured_image.alt | escape -%}
+            {% endif %}
+
+            {% render 'jp-promo-grid-card',
+              promotion: collection,
+              promotion_img: collection_image,
+              promotion_img_alt: collection_image_alt,
+              card_title: title,
+              button_label: button_label,
+              promos_per_row: section.settings.promotions_per_row,
+              image_crop: true,
+              image_height: image_height
+            %}
+          {% endfor %}
+        {% elsif block.type == 'product_list_block' %}
+          {% for product in block.settings.product_list %}
+            {%- assign product = all_products[block.settings.feature_product] -%}
+            {%- assign image = block.settings.image -%}
+            {%- assign title = block.settings.title -%}
+            {%- assign button_label = block.settings.button_label -%}
+            {% comment %} End content settings {% endcomment %}
+
+            {% if image != blank %}
+              {%- assign product_image = image -%}
+              {%- assign product_image_alt = image.alt | escape -%}
+            {% else %}
+              {%- assign product_image = product.featured_image -%}
+              {%- assign product_image_alt = product.featured_image.alt | escape -%}
+            {% endif %}
+
+            {% render 'jp-promo-grid-card',
+              promotion: product,
+              promotion_img: product_image,
+              promotion_img_alt: product_image_alt,
+              card_title: title,
+              button_label: button_label,
+              promos_per_row: section.settings.promotions_per_row,
+              image_crop: true,
+              image_height: image_height
+            %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "JP Promotion grid",
+  "class": "collection-list",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background Type",
+      "default": "text",
+      "options": [
+        {
+          "value": "full",
+          "label": "Full"
+        },
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "both",
+          "label": "Both"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "overlay_background",
+      "label": "Background",
+      "default": "#939393"
+    },
+    {
+      "type": "range",
+      "id": "overlay_background_opacity",
+      "label": "Background opacity",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "default": 0,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "Button and Text Styles"
+    },
+    {
+      "type": "select",
+      "id": "btn-text_alignment",
+      "label": "Alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "default": "button--secondary",
+      "options": [
+        {
+          "value": "button--primary",
+          "label": "Primary"
+        },
+        {
+          "value": "button--secondary",
+          "label": "Secondary"
+        },
+        {
+          "value": "button--link-style",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "promotion_title_below_image",
+      "label": "Show text below image",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "overlay_text",
+      "label": "Text Color"
+    },
+    {
+      "type": "select",
+      "id": "text_font_size2",
+      "label": "Text Size",
+      "default": "h3",
+      "options": [
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        }
+        // ,
+        // {
+        //   "value": "p",
+        //   "label": "P"
+        // }
+      ]
+    },
+
+    // {
+    //   "type": "color",
+    //   "id": "text_background",
+    //   "label": "Text Background"
+    // },
+
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "checkbox",
+      "id": "align_height",
+      "label": "Align to height",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Image height",
+      "min": 200,
+      "max": 400,
+      "step": 10,
+      "default": 400,
+      "unit": "px",
+      "info": "Applied when 'Align to height' is also enabled. [Learn more](https://help.outofthesandbox.com/hc/en-us/articles/360024344614)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "Magnify image on hover",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gutter",
+      "label": "Show gutter",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "promotions_per_row",
+      "label": "Promotions Per Row",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "grid_alignment",
+      "label": "Grid Alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "standard",
+      "options": [
+        {
+          "value": "standard",
+          "label": "Standard"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "min": 0,
+      "max": 80,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "min": 0,
+      "max": 80,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "fadeIn",
+          "label": "Fade in"
+        },
+        {
+          "value": "fadeInDown",
+          "label": "Fade in down"
+        },
+        {
+          "value": "fadeInLeft",
+          "label": "Fade in left"
+        },
+        {
+          "value": "fadeInRight",
+          "label": "Fade in right"
+        },
+        {
+          "value": "slideInLeft",
+          "label": "Slide in left"
+        },
+        {
+          "value": "slideInRight",
+          "label": "Slide in right"
+        },
+        {
+          "value": "zoomIn",
+          "label": "Zoom in"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Advanced",
+      "info": "[Learn more](https://help.outofthesandbox.com/hc/en-us/articles/360022329373)"
+    },
+    {
+      "type": "text",
+      "id": "css_class",
+      "label": "CSS Class"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "feature_collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "The collection's featured image will be used as a fallback."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "feature_product",
+          "label": "Product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "The product's featured image will be used as a fallback."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "name": "Page",
+      "settings": [
+        {
+          "type": "page",
+          "id": "feature_page",
+          "label": "Page"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "article",
+      "name": "Article",
+      "settings": [
+        {
+          "type": "article",
+          "id": "feature_article",
+          "label": "Article"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "The article's featured image will be used as a fallback."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "blog",
+      "name": "Blog",
+      "settings": [
+        {
+          "type": "blog",
+          "id": "feature_blog",
+          "label": "Blog"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "collection_list_block",
+      "name": "Collection List",
+      "settings": [
+        {
+          "type": "collection_list",
+          "id": "collection_list",
+          "label": "Collections to Show"
+        },
+
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    },
+    {
+      "type": "product_list_block",
+      "name": "Product List",
+      "settings": [
+        {
+          "type": "product_list",
+          "id": "product_list",
+          "label": "Products to Show"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "JP Promotion grid",
+      "category": "JadePuma",
+      "settings": {},
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "page"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "blog"
+        },
+        {
+          "type": "product_list_block"
+        },
+        {
+          "type": "collection_list_block"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

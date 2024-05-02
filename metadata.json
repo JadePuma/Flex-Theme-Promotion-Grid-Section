@@ -8,12 +8,11 @@
     "repoData": {
         "repoName": "Flex-Theme-Promotion-Grid-Section",
         "sections": [
-            "sections/index__promotion-grid.liquid"
+            "sections/jp-index__promotion-grid.liquid"
         ],
         "snippets": [
-            "snippets/collection_card.liquid",
-            "snippets/color_to_rgb.liquid",
-            "snippets/product_card.liquid"
+            "snippets/jp-promo-grid.liquid",
+            "snippets/color_to_rgb.liquid"
         ],
         "assets": []
     },
