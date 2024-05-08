@@ -1,7 +1,7 @@
 {% comment %}
   Custom section created by JadePuma
-  Instructions - https://jadepuma.com/blogs/shopify-tutorials/promotions-grid-section-for-the-flex-theme
-  Last editted - 30Jan24
+  jp-index__promotion-grid
+  Last editted - 5/8/24
 {% endcomment %}
 
 {% comment %} Content settings {% endcomment %}
@@ -77,6 +77,7 @@
     {% endif %}
 {% endcapture %}
 
+
 {% comment %} Section specific CSS {% endcomment %}
 {% style %}
    #shopify-section-{{ section.id }} {
@@ -88,13 +89,9 @@
    }
   .promotion-list .container { justify-content: {{section.settings.grid_alignment}}; }
 
-  .promotion_title > h2,
-  .promotion_title > h3,
-  .promotion_title > h4,
-  .promotion_title > h5,
-  .promotion_title > h6,
-  .promotion_title > p {
+  .promotion_title > h2 {
     color:{{ ss.overlay_text }};
+    font-size:{{ ss.font_size-desktop }}px;
   }
 
   .promotion_card{
@@ -114,11 +111,18 @@
     padding:20px;
     display:flex;
     flex-direction:column;
-    align-items:{{ item_alignment }};
+    align-items:{{ item_alignment | strip }};
   }
 
   .promotion_title_container{
     z-index:2;
+  }
+
+    @media(max-width: 480px){
+      .promotion_title > h2 {
+      color:{{ ss.overlay_text }};
+      font-size:{{ ss.font_size-mobile }}px;
+      }
   }
 
    {% render 'css-loop',
@@ -357,7 +361,7 @@
 
 {% schema %}
 {
-  "name": "JP Promotion grid",
+  "name": "JP Promotion Grid",
   "class": "collection-list",
   "max_blocks": 24,
   "settings": [
@@ -406,25 +410,11 @@
       "content": "Button and Text Styles"
     },
     {
-      "type": "select",
-      "id": "btn-text_alignment",
-      "label": "Alignment",
-      "default": "left",
-      "options": [
-        {
-          "value": "left",
-          "label": "Left"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "right",
-          "label": "Right"
-        }
-      ]
-    },
+  "type": "text_alignment",
+  "id": "btn-text_alignment",
+  "label": "Alignment",
+  "default": "center"
+},
     {
       "type": "select",
       "id": "button_style",
@@ -457,45 +447,25 @@
       "label": "Text Color"
     },
     {
-      "type": "select",
-      "id": "text_font_size2",
-      "label": "Text Size",
-      "default": "h3",
-      "options": [
-        {
-          "value": "h2",
-          "label": "H2"
-        },
-        {
-          "value": "h3",
-          "label": "H3"
-        },
-        {
-          "value": "h4",
-          "label": "H4"
-        },
-        {
-          "value": "h5",
-          "label": "H5"
-        },
-        {
-          "value": "h6",
-          "label": "H6"
-        }
-        // ,
-        // {
-        //   "value": "p",
-        //   "label": "P"
-        // }
-      ]
+      "type": "range",
+      "id": "font_size-desktop",
+      "label": "Desktop Font Size",
+      "min": 5,
+      "max": 50,
+      "step": 1,
+      "default": 24,
+      "unit": "px"
     },
-
-    // {
-    //   "type": "color",
-    //   "id": "text_background",
-    //   "label": "Text Background"
-    // },
-
+    {
+      "type": "range",
+      "id": "font_size-mobile",
+      "label": "Mobile Font Size",
+      "min": 5,
+      "max": 50,
+      "step": 1,
+      "default": 24,
+      "unit": "px"
+    },
     {
       "type": "header",
       "content": "Image"
@@ -823,32 +793,10 @@
   ],
   "presets": [
     {
-      "name": "JP Promotion grid",
+      "name": "JP Promotion Grid",
       "category": "JadePuma",
       "settings": {},
-      "blocks": [
-        {
-          "type": "collection"
-        },
-        {
-          "type": "product"
-        },
-        {
-          "type": "page"
-        },
-        {
-          "type": "article"
-        },
-        {
-          "type": "blog"
-        },
-        {
-          "type": "product_list_block"
-        },
-        {
-          "type": "collection_list_block"
-        }
-      ]
+      "blocks": []
     }
   ]
 }
