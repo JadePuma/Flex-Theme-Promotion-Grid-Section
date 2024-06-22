@@ -1,7 +1,6 @@
 {% comment %}
   Custom section created by JadePuma
-  jp-index__promotion-grid
-  Last editted - 5/8/24
+  Last editted - 6/22/24
 {% endcomment %}
 
 {% comment %} Content settings {% endcomment %}
@@ -77,7 +76,6 @@
     {% endif %}
 {% endcapture %}
 
-
 {% comment %} Section specific CSS {% endcomment %}
 {% style %}
    #shopify-section-{{ section.id }} {
@@ -111,7 +109,7 @@
     padding:20px;
     display:flex;
     flex-direction:column;
-    align-items:{{ item_alignment | strip }};
+    align-items:{{ item_alignment }};
   }
 
   .promotion_title_container{
@@ -353,6 +351,29 @@
               image_height: image_height
             %}
           {% endfor %}
+
+        {% elsif block.type == 'image-link_block' %}
+          {% comment %}  * * * Blog * * * {% endcomment %}
+
+          {% comment %} Content settings {% endcomment %}
+          {%- assign image = block.settings.image -%}
+          {%- assign heading = block.settings.heading -%}
+          {%- assign link = block.settings.link -%}
+
+          {% comment %} End content settings {% endcomment %}
+
+          {% render 'jp-promo-grid-card',
+            promotion: "blank",
+            promotion_img: image,
+            promotion_img_alt: image,
+            card_title: block.settings.title,
+            link: link,
+            button_label: block.settings.button_label,
+            promos_per_row: section.settings.promotions_per_row,
+            image_crop: true,
+            image_height: image_height
+          %}
+
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -410,11 +431,25 @@
       "content": "Button and Text Styles"
     },
     {
-  "type": "text_alignment",
-  "id": "btn-text_alignment",
-  "label": "Alignment",
-  "default": "center"
-},
+      "type": "select",
+      "id": "btn-text_alignment",
+      "label": "Alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
     {
       "type": "select",
       "id": "button_style",
@@ -789,6 +824,32 @@
           "label": "Button label"
         }
       ]
+    },
+    {
+      "type": "image-link_block",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button Label"
+        }
+      ]
     }
   ],
   "presets": [
@@ -796,7 +857,29 @@
       "name": "JP Promotion Grid",
       "category": "JadePuma",
       "settings": {},
-      "blocks": []
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "page"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "blog"
+        },
+        {
+          "type": "product_list_block"
+        },
+        {
+          "type": "collection_list_block"
+        }
+      ]
     }
   ]
 }

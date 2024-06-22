@@ -16,6 +16,21 @@
 {% liquid
   assign ss = section.settings
 %}
+
+
+{% liquid
+  assign link = link
+%}
+
+
+{% if promotion == "blank" %}
+  {% assign  url =  link %}
+{% else %} 
+   {% assign url = promotion.url %} 
+{% endif %}
+
+
+
 <div
   class="
     column
@@ -35,7 +50,7 @@
   "
 >
   <div class="product-wrap enable-zoom-{{ section.settings.enable_zoom }}">
-    <a class="promotion-thumbnail-overlay collection-info__caption" href="{{ promotion.url }}"></a>
+    <a class="promotion-thumbnail-overlay collection-info__caption" href="{{ url }}"></a>
     {% if promotion_img != blank %}
       <div class="thumbnail image__container has-image-crop">
         {% render 'image-element',
@@ -52,10 +67,20 @@
   </div>
   <a
     class="promotion_title_container text-align-{{ ss.btn-text_alignment }} collection-info__caption-wrapper"
-    href="{{ promotion.url }}"
+    href="{{ url }}"
   >
+    
+    {% if promotion == "blank" %}
+    {% if card_title != blank %}
     <span class="promotion_title">
-      <{{ ss.text_font_size2 }}>
+      <h2>
+        {{ card_title }}
+      </h2>
+    </span>
+    {% endif %}
+    {% else %}
+    <span class="promotion_title">
+      <h2>
         {% if card_title != blank %}
           {{ card_title }}
         {% elsif promotion.title != blank %}
@@ -63,8 +88,12 @@
         {% else %}
           PROMOTION TITLE
         {% endif %}
-      </{{ ss.text_font_size2 }}>
+      </h2>
     </span>
-    {% render 'button', label: button_label, href: promotion.url, style: section.settings.button_style %}
+    {% endif %}
+
+
+
+    {% render 'button', label: button_label, href: url, style: section.settings.button_style %}
   </a>
 </div>
