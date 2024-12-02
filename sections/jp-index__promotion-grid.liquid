@@ -1,7 +1,7 @@
 {% comment %}
   Custom section created by JadePuma
   Instructions - https://jadepuma.com/blogs/shopify-tutorials/promotions-grid-section-for-the-flex-theme
-  Last editted - 20Nov24
+  Last editted - 2DEC24
 {% endcomment %}
 
 {% comment %} Content settings {% endcomment %}
@@ -32,18 +32,16 @@
 
 {%- capture section_css -%}
   {% if section.settings.align_height != blank %}
-    .placeholder-svg {
+    #shopify-section-{{ section.id }} .placeholder-svg {
       height: {{ image_height }}px;
       max-height: {{ image_height }}px;
     }
   {% endif %}
 
-  .promotion-thumbnail-overlay {
-
+  #shopify-section-{{ section.id }} .promotion-thumbnail-overlay {
     {% if ss.background_type == 'full' or ss.background_type == 'both' %}
         background-color: {{ bg-color }} ;
     {% endif %}
-
     position:absolute;
     top:0;
     left:0;
@@ -51,19 +49,15 @@
     height:100%;
   }
 
-  .collection-info__caption span {
+  #shopify-section-{{ section.id }} .collection-info__caption span {
     color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %}
       {% comment %} font-size: {{section.settings.text_font_size}}px !important; {% endcomment %}
   }
 
-  .title-below-image {
+  #shopify-section-{{ section.id }} .title-below-image {
     {% comment %} color: {%- if overlay_text_alpha != 0 -%}{{ section.settings.overlay_text }}{% endif %};
     font-size: {{section.settings.text_font_size}}px !important; {% endcomment %}
   }
-
-{% comment %} .collection-info__caption a{
-  text-align:center;
-} {% endcomment %}
   
 {%- endcapture -%}
 
@@ -86,19 +80,19 @@
        width: 100%;
      {% endif %}
    }
-   #shopify-section-{{ section.id }} .promotion-list .container { justify-content: {{section.settings.grid_alignment}}; }
+  #shopify-section-{{ section.id }} .promotion-list .container { justify-content: {{section.settings.grid_alignment}}; }
 
-  .promotion_title > h2 {
+  #shopify-section-{{ section.id }} .promotion_title > h2 {
     color:{{ ss.overlay_text }};
     font-size:{{ ss.font_size-desktop }}px;
   }
 
-  .promotion_card{
+  #shopify-section-{{ section.id }} .promotion_card{
     position:relative;
     height:fit-content;
   }
 
-  .promotion_title_container {
+  #shopify-section-{{ section.id }} .promotion_title_container {
     {% unless section.settings.promotion_title_below_image %}
       position:absolute;
       bottom:0;
@@ -113,12 +107,12 @@
     align-items:{{ item_alignment }};
   }
 
-  .promotion_title_container{
+  #shopify-section-{{ section.id }} .promotion_title_container{
     z-index:2;
   }
 
     @media(max-width: 480px){
-      .promotion_title > h2 {
+      #shopify-section-{{ section.id }} .promotion_title > h2 {
       color:{{ ss.overlay_text }};
       font-size:{{ ss.font_size-mobile }}px;
       }
