@@ -30,6 +30,8 @@
     {% endif %}
 {% endcapture %}
 
+
+
 {%- capture section_css -%}
   {% if section.settings.align_height != blank %}
     #shopify-section-{{ section.id }} .placeholder-svg {
@@ -38,10 +40,8 @@
     }
   {% endif %}
 
-  #shopify-section-{{ section.id }} .promotion-thumbnail-overlay {
-    {% if ss.background_type == 'full' or ss.background_type == 'both' %}
-        background-color: {{ bg-color }} ;
-    {% endif %}
+  .promotion-thumbnail-overlay {
+    {% if ss.background_type == 'full' or ss.background_type == 'both' %}background-color: {{ bg-color }};{% endif %}
     position:absolute;
     top:0;
     left:0;
@@ -111,12 +111,7 @@
     z-index:2;
   }
 
-    @media(max-width: 480px){
-      #shopify-section-{{ section.id }} .promotion_title > h2 {
-      color:{{ ss.overlay_text }};
-      font-size:{{ ss.font_size-mobile }}px;
-      }
-  }
+
 
    {% render 'css-loop',
            css: section_css,
@@ -126,6 +121,13 @@
            css: section.settings.custom_css,
            id: section.id
    %}
+
+      @media(max-width: 480px){
+      #shopify-section-{{ section.id }} .promotion_title > h2 {
+      color:{{ ss.overlay_text }};
+      font-size:{{ ss.font_size-mobile }}px;
+      }
+  }
 {% endstyle %}
 
 <section
