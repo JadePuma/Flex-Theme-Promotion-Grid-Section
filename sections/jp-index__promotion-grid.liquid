@@ -152,6 +152,10 @@
   <div class="container">
     {% if blocks.size > 0 %}
       {% for block in blocks %}
+        {% assign hide_mobile = false %}
+        {% if block.settings.disable_mobile %}
+          {% assign hide_mobile = true %}
+        {%  endif %}
         {% if block.type == 'collection' %}
           {% comment %}  * * * Collection * * * {% endcomment %}
 
@@ -181,7 +185,8 @@
             button_label: button_label,
             promos_per_row: section.settings.promotions_per_row,
             image_crop: true,
-            image_height: image_height
+            image_height: image_height,
+            mobile_display: hide_mobile
           %}
 
         {% elsif block.type == 'product' %}
@@ -210,7 +215,8 @@
             button_label: button_label,
             promos_per_row: section.settings.promotions_per_row,
             image_crop: true,
-            image_height: image_height
+            image_height: image_height,
+            mobile_display: hide_mobile
           %}
 
         {% elsif block.type == 'page' %}
@@ -238,7 +244,8 @@
             button_label: button_label,
             promos_per_row: section.settings.promotions_per_row,
             image_crop: true,
-            image_height: image_height
+            image_height: image_height,
+            mobile_display: hide_mobile
           %}
 
         {% elsif block.type == 'article' %}
@@ -267,7 +274,8 @@
             button_label: button_label,
             promos_per_row: section.settings.promotions_per_row,
             image_crop: true,
-            image_height: image_height
+            image_height: image_height,
+            mobile_display: hide_mobile
           %}
 
         {% elsif block.type == 'blog' %}
@@ -288,7 +296,8 @@
             button_label: block.settings.button_label,
             promos_per_row: section.settings.promotions_per_row,
             image_crop: true,
-            image_height: image_height
+            image_height: image_height,
+            mobile_display: hide_mobile
           %}
         {% elsif block.type == 'collection_list_block' %}
           {% for collection in block.settings.collection_list %}
@@ -318,7 +327,8 @@
               button_label: button_label,
               promos_per_row: section.settings.promotions_per_row,
               image_crop: true,
-              image_height: image_height
+              image_height: image_height,
+              mobile_display: hide_mobile
             %}
           {% endfor %}
         {% elsif block.type == 'product_list_block' %}
@@ -345,7 +355,8 @@
               button_label: button_label,
               promos_per_row: section.settings.promotions_per_row,
               image_crop: true,
-              image_height: image_height
+              image_height: image_height,
+              mobile_display: hide_mobile
             %}
           {% endfor %}
 
@@ -368,7 +379,8 @@
             button_label: block.settings.button_label,
             promos_per_row: section.settings.promotions_per_row,
             image_crop: true,
-            image_height: image_height
+            image_height: image_height,
+            mobile_display: hide_mobile
           %}
 
         {% endif %}
@@ -549,6 +561,21 @@
     },
     {
       "type": "select",
+      "id": "mobile_images_per_row",
+      "label": "Images per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ]
+    },
+    {
+      "type": "select",
       "id": "grid_alignment",
       "label": "Grid Alignment",
       "default": "left",
@@ -683,6 +710,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -710,6 +743,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -736,6 +775,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -763,6 +808,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -789,6 +840,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -806,6 +863,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -822,6 +885,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     },
@@ -848,6 +917,12 @@
           "type": "text",
           "id": "button_label",
           "label": "Button Label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_mobile",
+          "label": "Hide in mobile",
+          "default": false
         }
       ]
     }

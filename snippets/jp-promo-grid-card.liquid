@@ -43,6 +43,14 @@
       has-gutter
       has-gutter--mobile
     {% endif %}
+    {% if mobile_display %}
+      small-down--hide
+    {% endif %}
+    {% if section.settings.mobile_images_per_row == '1' %}
+      small-down--one-whole
+    {% else %}
+      small-down--one-half
+    {% endif %}
     list-collection__thumbnail
     medium-down--one-whole
     has-margin-bottom
