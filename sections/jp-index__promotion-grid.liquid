@@ -144,6 +144,9 @@
     {% if blocks.size > section.settings.promotions_per_row %}
       has-multirow-blocks
     {% endif %}
+    {% if overlay_alpha != 0 %}
+      has-background
+    {% endif %}
   "
   {% if section.settings.animation != 'none' %}
     data-scroll-class="{{ section.settings.animation }}"
